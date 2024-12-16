@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from progress.models import Progress
+
+
+@admin.register(Progress)
+class ProgressAdmin(admin.ModelAdmin):
+    list_display = ('progress', 'date', 'challenge', )
+    fields = ('progress', 'date', 'challenge', )
+    # readonly_fields = ('date', )
