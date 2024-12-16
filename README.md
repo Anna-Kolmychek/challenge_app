@@ -30,17 +30,17 @@ venv\Scripts\activate.bat
 pip install -r requirements.txt
 ```
 
+Выполнить миграции
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
 Загрузить тестовые данные (пользователь с данными 111, 111)
 ```
 python manage.py create_users
 python manage.py create_challenges
 python manage.py create_progress
-```
-
-Выполнить миграции
-```
-python manage.py makemigrations
-python manage.py migrate
 ```
 
 Запустить локальный сервер Django:
