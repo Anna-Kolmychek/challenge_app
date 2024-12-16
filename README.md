@@ -16,6 +16,7 @@ git clone https://github.com/Anna-Kolmychek/challenge_app.git
 ```
 cd challenge_app
 ```
+
 Создать и активировать виртуальное окружение:
 ```
 python -m venv venv
@@ -23,9 +24,17 @@ python -m venv venv
 ```
 venv\Scripts\activate.bat
 ```
+
 Установить зависимости из файла requirements.txt:
 ```
 pip install -r requirements.txt
+```
+
+Загрузить тестовые данные (пользователь с данными 111, 111)
+```
+python manage.py create_users
+python manage.py create_challenges
+python manage.py create_progress
 ```
 
 Выполнить миграции

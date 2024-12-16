@@ -1,7 +1,6 @@
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, mixins, permissions
-from rest_framework.exceptions import MethodNotAllowed
 
 from challenges.models import Challenge
 from challenges import serializers as challenge_serializers
@@ -9,9 +8,9 @@ from challenges import serializers as challenge_serializers
 
 @extend_schema_view(
     create=extend_schema(summary='Create challange'),
-    retrieve=extend_schema(summary='Get challenge info by ID'),
-    list=extend_schema(summary='Get all open challenges'),
-    partial_update=extend_schema(summary='Update challenge info by ID'),
+    retrieve=extend_schema(summary='Get challenge info by ID - not finished'),
+    list=extend_schema(summary='Get all open challenges - not finished'),
+    partial_update=extend_schema(summary='Update challenge info by ID - not finished'),
 )
 class ChallengeViewSet(mixins.CreateModelMixin,
                        mixins.RetrieveModelMixin,
