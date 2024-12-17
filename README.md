@@ -22,7 +22,7 @@ cd challenge_app
 python -m venv venv
 ```
 ```
-venv\Scripts\activate.bat
+venv\Scripts\activate
 ```
 
 Установить зависимости из файла requirements.txt:
