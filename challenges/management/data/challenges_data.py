@@ -17,7 +17,7 @@ challenges_data = {
         'description': 'Go to the gym 3 times a week.',
         'goal': 3,
         'period': 'week',
-        'started_at': timezone.now() - timedelta(days=15),
+        'started_at': timezone.now() - timedelta(days=19),
         'finished_at': None,
         'is_finished': False,
     },
