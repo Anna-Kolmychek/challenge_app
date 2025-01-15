@@ -22,10 +22,6 @@ progresses_data = {
                 'progress': 1,
                 'date': timezone.now() - timedelta(days=1),
             },
-            {
-                'progress': 1,
-                'date': timezone.now(),
-            },
         ]
     },
     2: {

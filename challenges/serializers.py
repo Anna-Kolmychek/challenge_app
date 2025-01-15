@@ -1,7 +1,12 @@
-from django.db.models import Sum
-from rest_framework import serializers
+import calendar
+from datetime import timedelta, datetime
 
-from challenges.models import Challenge
+from django.db.models import Sum
+from django.utils import timezone
+from rest_framework import serializers, exceptions
+
+from challenges import services
+from challenges.models import Challenge, Period
 from progress.models import Progress
 
 
@@ -39,10 +44,18 @@ class GetChallengeSerializer(BaseChallengeSerializer):
         )
 
     def get_progress(self, obj) -> int:
-        total_progress = Progress.objects.filter(challenge=obj).aggregate(sum=Sum('progress'))
-        return total_progress.get('sum') if total_progress.get('sum') else 0
-
-
+        started_date = services.get_started_date_for_current_progress(
+            period=obj.period,
+            started_at=obj.started_at
+        )
+        if not started_date:
+            raise exceptions.ValidationError(
+                {'started_at': f'The challenge{obj.id} has problems with the start date.'}
+            )
+        current_progress = Progress.objects.filter(
+            challenge=obj, date__gte=started_date
+        ).aggregate(sum=Sum('progress'))
+        return current_progress.get('sum') if current_progress.get('sum') else 0
 
 
 class UpdateChallengeSerializer(BaseChallengeSerializer):

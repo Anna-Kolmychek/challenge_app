@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from challenges.models import Challenge
@@ -10,7 +11,7 @@ class Progress(models.Model):
         verbose_name=_('progresses'),
     )
     date = models.DateField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name=_('date'),
     )
     challenge = models.ForeignKey(
