@@ -10,14 +10,14 @@ class Progress(models.Model):
         default=1,
         verbose_name=_('progresses'),
     )
-    date = models.DateField(
+    date = models.DateTimeField(
         default=timezone.now,
         verbose_name=_('date'),
     )
     challenge = models.ForeignKey(
         Challenge,
         on_delete=models.CASCADE,
-        related_name='progress',
+        related_name='progresses',
         verbose_name=_('challenge'),
     )
 

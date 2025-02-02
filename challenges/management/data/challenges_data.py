@@ -54,7 +54,7 @@ challenges_data = {
         'goal': 1,
         'period': 'day',
         'started_at': timezone.now() - timedelta(days=40),
-        'finished_at': None,
+        'finished_at': timezone.now(),
         'is_finished': True,
     },
 }

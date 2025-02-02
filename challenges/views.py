@@ -54,5 +54,24 @@ class ChallengeInProgressListAPIView(generics.ListAPIView):
         return Challenge.objects.filter(
             user=self.request.user,
             is_finished=False,
-            started_at__lte=timezone.now()
+        ).all()
+
+
+@extend_schema(
+    summary='Get all finished challenges - not finished'
+)
+class FinishedChallengeListAPIView(generics.ListAPIView):
+    """Get a list of finished challenges for the current user.\n
+    Available only to authorized users."""
+
+    queryset = Challenge.objects.all()
+    serializer_class = challenge_serializers.GetFinishedChallengeSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get_queryset(self):
+        services.finish_completed_challenges(self.request.user)
+
+        return Challenge.objects.filter(
+            user=self.request.user,
+            is_finished=True,
         ).all()
