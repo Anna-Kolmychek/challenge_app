@@ -60,6 +60,6 @@ jobs:
           password: ${{ secrets.HOST_PASSWORD }}
           script: |
             cd /var/www/html/challenge_app/
-            sudo docker compose -f docker-compose.yml down -v
+            sudo docker compose -f docker-compose.yml down
             sudo docker system prune -af
             sudo docker compose -f docker-compose.yml up -d
