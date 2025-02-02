@@ -24,11 +24,14 @@ class CustomAuthentication(BaseAuthentication):
         if not auth_header:
             return None
 
+        if not auth_header.isdigit():
+            msg = 'Wrong format telegram_id'
+            raise exceptions.AuthenticationFailed(msg)
+
         try:
             user = CustomUser.objects.get(telegram_id=auth_header)
         except CustomUser.DoesNotExist:
-            msg = 'User not found'
-            raise exceptions.AuthenticationFailed(msg)
+            user = CustomUser.objects.create(telegram_id=auth_header)
 
         if not user.is_active:
             msg = 'User deactivated'
