@@ -51,11 +51,14 @@ class ChallengeInProgressListAPIView(generics.ListAPIView):
     def get_queryset(self):
         services.finish_completed_challenges(self.request.user)
 
-        return Challenge.objects.filter(
+        challenges = Challenge.objects.filter(
             user=self.request.user,
             is_finished=False,
         ).all()
 
+        challenges = services.custom_ordering(challenges)
+
+        return challenges
 
 @extend_schema(
     summary='Get all finished challenges - not finished'
@@ -71,7 +74,11 @@ class FinishedChallengeListAPIView(generics.ListAPIView):
     def get_queryset(self):
         services.finish_completed_challenges(self.request.user)
 
-        return Challenge.objects.filter(
+        challenges = Challenge.objects.filter(
             user=self.request.user,
             is_finished=True,
         ).all()
+
+        challenges = services.custom_ordering(challenges)
+
+        return challenges

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -22,6 +23,12 @@ PERIOD_CHOICES = (
 class Challenge(models.Model):
     """Model for challenge"""
 
+    uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name=_('uuid'),
+    )
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -54,6 +61,7 @@ class Challenge(models.Model):
     )
 
     class Meta:
+
         verbose_name = _('challenge')
         verbose_name_plural = _('challenges')
 

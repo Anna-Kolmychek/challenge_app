@@ -1,7 +1,8 @@
 import calendar
 from datetime import timedelta, datetime
 
-from django.db.models import Sum
+from django.db import models
+from django.db.models import Sum, Case, When, Value
 from django.utils import timezone
 from rest_framework import exceptions
 
@@ -55,6 +56,32 @@ def get_started_date_for_current_progress(period, started_at):
     return started_date
 
 
+def get_period_finished_at(date):
+    """Get date when current period will be finished
+    for challenge with period=month"""
+    year = timezone.now().year
+    month = timezone.now().month
+    if date.day < timezone.now().day:
+        if month == 12:
+            month = 1
+            year += 1
+        else:
+            month += 1
+    try:
+        finished_date = datetime(
+            year,
+            month,
+            date.day-1
+        )
+    except ValueError:
+        finished_date = datetime(
+            year,
+            month,
+            calendar.monthrange(year, month)[1]-1
+        )
+    return finished_date.date()
+
+
 def get_current_progress(challenge):
     """Get current progress"""
 
@@ -93,3 +120,33 @@ def reduce_current_progress(challenge, del_progress):
 
     if progresses_to_delete:
         Progress.objects.filter(id__in=progresses_to_delete).delete()
+
+
+def custom_ordering(challenges):
+    """Custom ordering for list of challenges.
+    first active challenges, after with a start date in the future
+    inside first with a period of a day, then a week, then a month,
+    inside the  alphabetical description"""
+
+    current_date = timezone.now().date()
+
+    sorted_challenges = challenges.annotate(
+        period_order=Case(
+            When(period=Period.DAY, then=Value(1)),
+            When(period=Period.WEEK, then=Value(2)),
+            When(period=Period.MONTH, then=Value(3)),
+            default=Value(4),
+            output_field=models.IntegerField(),
+        ),
+        started_order=Case(
+            When(started_at__lt=current_date, then=Value(1)),
+            When(started_at__gte=current_date, then=Value(2)),
+            default=Value(3),
+            output_field=models.IntegerField(),
+        )
+    ).order_by(
+        'started_order',
+        'period_order',
+        'description'
+    )
+    return sorted_challenges

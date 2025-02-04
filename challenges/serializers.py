@@ -17,7 +17,7 @@ class BaseChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = (
-            'id',
+            'uuid',
             'description',
             'goal',
             'period',
@@ -36,17 +36,25 @@ class CreateChallengeSerializer(BaseChallengeSerializer):
 
 
 class GetChallengeSerializer(BaseChallengeSerializer):
-    """Serializer for get info on challenge."""
+    """Serializer for get info on active challenge."""
 
     progress = serializers.SerializerMethodField()
+    period_finished_at = serializers.SerializerMethodField()
 
     class Meta(BaseChallengeSerializer.Meta):
         fields = BaseChallengeSerializer.Meta.fields + (
             'progress',
+            'period_finished_at',
         )
 
     def get_progress(self, obj) -> int:
         return services.get_current_progress(obj)
+
+    def get_period_finished_at(self, obj) -> int:
+        period_finished_at = None
+        if obj.period == Period.MONTH:
+            period_finished_at = services.get_period_finished_at(obj.started_at)
+        return period_finished_at
 
 
 class UpdateChallengeSerializer(BaseChallengeSerializer):
@@ -88,18 +96,15 @@ class UpdateChallengeSerializer(BaseChallengeSerializer):
         return instance
 
 
-class GetFinishedChallengeSerializer(serializers.ModelSerializer):
+class GetFinishedChallengeSerializer(BaseChallengeSerializer):
     """Serializer for get info on finished challenge."""
 
     total_progress = serializers.SerializerMethodField(read_only=True)
     goal_progress = serializers.SerializerMethodField(read_only=True)
     duration = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = Challenge
-        fields = (
-            'id',
-            'description',
+    class Meta(BaseChallengeSerializer.Meta):
+        fields = BaseChallengeSerializer.Meta.fields + (
             'total_progress',
             'goal_progress',
             'duration',
