@@ -71,6 +71,8 @@ CORS_ALLOW_HEADERS = (
     "accept-patch",
 )
 
+CSRF_COOKIE_SECURE = True
+
 
 ROOT_URLCONF = 'config.urls'
 
