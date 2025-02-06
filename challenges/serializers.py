@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from challenges import services
-from challenges.models import Challenge, Period
+from challenges.models import Challenge, Period, PatchData
 from progress.models import Progress
 
 
@@ -68,6 +68,17 @@ class UpdateChallengeSerializer(BaseChallengeSerializer):
         )
 
     def update(self, instance, validated_data):
+
+        # ------------------------------- start
+        # print(str(validated_data))
+        PatchData.objects.create(
+            body=str(validated_data),
+            challenges_uuid=instance.uuid,
+            challenges_desc=instance.description,
+        )
+
+        # ------------------------------- finish
+
         new_progress = validated_data.pop('progress', None)
         is_finished = validated_data.get('is_finished', None)
 

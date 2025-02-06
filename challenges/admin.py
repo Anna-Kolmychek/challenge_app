@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from challenges.models import Challenge
+from challenges.models import Challenge, PatchData
 
 
 @admin.register(Challenge)
@@ -25,3 +25,28 @@ class ChallengeAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('uuid', )
     list_filter = ('period', 'is_finished', )
+
+
+@admin.register(PatchData)
+class PatchDataAdmin(admin.ModelAdmin):
+    fields = (
+        'id',
+        'date',
+        'body',
+        'challenges_uuid',
+        'challenges_desc',
+    )
+    readonly_fields = (
+        'id',
+        'date',
+    )
+    list_display = (
+        'id',
+        'date',
+        'challenges_desc',
+    )
+    list_display_links = (
+        'id',
+        'date',
+    )
+
