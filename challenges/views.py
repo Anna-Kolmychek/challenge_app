@@ -2,7 +2,7 @@ from django.utils import timezone
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, mixins, permissions, generics
 
-from challenges.models import Challenge
+from challenges.models import Challenge, PatchData
 from challenges import serializers as challenge_serializers, services
 
 
@@ -82,3 +82,8 @@ class FinishedChallengeListAPIView(generics.ListAPIView):
         challenges = services.custom_ordering(challenges)
 
         return challenges
+
+
+class PatchDataListAPIView(generics.ListAPIView):
+    serializer_class = challenge_serializers.PatchDataSerializer
+    queryset = PatchData.objects.all()

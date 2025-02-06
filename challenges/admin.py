@@ -40,13 +40,3 @@ class PatchDataAdmin(admin.ModelAdmin):
         'id',
         'date',
     )
-    list_display = (
-        'id',
-        'date',
-        'challenges_desc',
-    )
-    list_display_links = (
-        'id',
-        'date',
-    )
-

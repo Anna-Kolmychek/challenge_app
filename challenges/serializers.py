@@ -147,3 +147,9 @@ class GetFinishedChallengeSerializer(BaseChallengeSerializer):
         except Exception:
             raise exceptions.ValidationError({'date': f'incorrect dates for the challenge {obj.id}'})
         return duration
+
+
+class PatchDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatchData
+        fields = '__all__'
