@@ -4,7 +4,8 @@ from rest_framework import routers
 from challenges.apps import ChallengesConfig
 from challenges.views import (ChallengeViewSet,
                               ChallengeInProgressListAPIView,
-                              FinishedChallengeListAPIView)
+                              FinishedChallengeListAPIView,
+                              PatchDataListAPIView)
 
 app_name = ChallengesConfig.name
 
@@ -14,5 +15,6 @@ router.register(r'', ChallengeViewSet)
 urlpatterns = [
     path('in-progress/', ChallengeInProgressListAPIView.as_view()),
     path('finished/', FinishedChallengeListAPIView.as_view()),
+    path('patch-data/', PatchDataListAPIView.as_view()),
     path('', include(router.urls))
 ]
