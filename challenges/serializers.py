@@ -67,9 +67,13 @@ class UpdateChallengeSerializer(BaseChallengeSerializer):
     def update(self, instance, validated_data):
         new_progress = validated_data.pop('progress', None)
         is_finished = validated_data.get('is_finished', None)
+        finished_at = validated_data.get('finished_at', None)
 
         if is_finished == True and instance.is_finished == False:
             validated_data['finished_at'] = timezone.now().date()
+
+        if finished_at and instance.is_finished == True and finished_at > timezone.now().date():
+            validated_data['is_finished'] = False
 
         instance = super().update(instance, validated_data)
 

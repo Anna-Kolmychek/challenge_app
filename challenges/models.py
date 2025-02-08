@@ -61,7 +61,7 @@ class Challenge(models.Model):
     )
 
     class Meta:
-
+        ordering = ('user', 'description', )
         verbose_name = _('challenge')
         verbose_name_plural = _('challenges')
 
