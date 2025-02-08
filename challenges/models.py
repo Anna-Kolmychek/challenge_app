@@ -67,12 +67,3 @@ class Challenge(models.Model):
 
     def __str__(self):
         return self.description
-
-
-class PatchData(models.Model):
-    date = models.DateTimeField(
-        auto_now_add=True,
-    )
-    body = models.TextField()
-    challenges_uuid = models.TextField()
-    challenges_desc = models.TextField()
