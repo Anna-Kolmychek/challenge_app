@@ -1,4 +1,3 @@
-from django.utils import timezone
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, mixins, permissions, generics
 
@@ -8,19 +7,21 @@ from challenges import serializers as challenge_serializers, services
 
 @extend_schema_view(
     create=extend_schema(summary='Create challenge'),
-    retrieve=extend_schema(summary='Get challenge info by ID - not finished'),
-    partial_update=extend_schema(summary='Update challenge info by ID - not finished'),
+    retrieve=extend_schema(summary='Get challenge info by ID'),
+    partial_update=extend_schema(summary='Update challenge info by ID'),
+    destroy=extend_schema(summary='Delete challenge by ID'),
 )
 class ChallengeViewSet(mixins.CreateModelMixin,
                        mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,
+                       mixins.DestroyModelMixin,
                        viewsets.GenericViewSet,):
-    """ViewsSet for Challenge: create, get by id, update by id.\n
+    """ViewsSet for Challenge: create, get by id, update by id, delete by id.\n
     Available only to authorized users.\n
     Only the current user's challenges are available.\n
     `"finished_at": null` means `all_time`"""
 
-    http_method_names = ['get', 'post', 'patch']
+    http_method_names = ('get', 'post', 'patch', 'delete', )
     queryset = Challenge.objects.all()
     permission_classes = (permissions.IsAuthenticated, )
 
@@ -38,7 +39,7 @@ class ChallengeViewSet(mixins.CreateModelMixin,
 
 
 @extend_schema(
-    summary='Get all challenges in progress - not finished'
+    summary='Get all challenges in progress'
 )
 class ChallengeInProgressListAPIView(generics.ListAPIView):
     """Get a list of challenges in progress for the current user.\n
@@ -60,8 +61,9 @@ class ChallengeInProgressListAPIView(generics.ListAPIView):
 
         return challenges
 
+
 @extend_schema(
-    summary='Get all finished challenges - not finished'
+    summary='Get all finished challenges'
 )
 class FinishedChallengeListAPIView(generics.ListAPIView):
     """Get a list of finished challenges for the current user.\n
