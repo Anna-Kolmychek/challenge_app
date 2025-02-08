@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from challenges.models import Challenge
-from progress.models import Progress
 
 
 @admin.register(Challenge)

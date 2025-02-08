@@ -4,8 +4,7 @@ from rest_framework import routers
 from challenges.apps import ChallengesConfig
 from challenges.views import (ChallengeViewSet,
                               ChallengeInProgressListAPIView,
-                              FinishedChallengeListAPIView,
-                              )
+                              FinishedChallengeListAPIView,)
 
 app_name = ChallengesConfig.name
 

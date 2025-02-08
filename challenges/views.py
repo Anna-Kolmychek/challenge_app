@@ -1,4 +1,3 @@
-from django.utils import timezone
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, mixins, permissions, generics
 
@@ -61,6 +60,7 @@ class ChallengeInProgressListAPIView(generics.ListAPIView):
         challenges = services.custom_ordering(challenges)
 
         return challenges
+
 
 @extend_schema(
     summary='Get all finished challenges'
