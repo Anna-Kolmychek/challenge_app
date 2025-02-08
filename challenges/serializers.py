@@ -1,6 +1,3 @@
-import calendar
-from datetime import timedelta, datetime
-
 from django.db.models import Sum
 from django.utils import timezone
 from rest_framework import serializers, exceptions
@@ -68,17 +65,6 @@ class UpdateChallengeSerializer(BaseChallengeSerializer):
         )
 
     def update(self, instance, validated_data):
-
-        # ------------------------------- start
-        # print(str(validated_data))
-        PatchData.objects.create(
-            body=str(validated_data),
-            challenges_uuid=instance.uuid,
-            challenges_desc=instance.description,
-        )
-
-        # ------------------------------- finish
-
         new_progress = validated_data.pop('progress', None)
         is_finished = validated_data.get('is_finished', None)
 
