@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import serializers, exceptions
 
 from challenges import services
-from challenges.models import Challenge, Period, PatchData
+from challenges.models import Challenge, Period
 from progress.models import Progress
 
 
@@ -147,9 +147,3 @@ class GetFinishedChallengeSerializer(BaseChallengeSerializer):
         except Exception:
             raise exceptions.ValidationError({'date': f'incorrect dates for the challenge {obj.id}'})
         return duration
-
-
-class PatchDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatchData
-        fields = '__all__'
