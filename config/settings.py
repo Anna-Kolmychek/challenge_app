@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'users',
     'challenges',
     'progress',
+    'tg_bot',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,5 @@ SPECTACULAR_SETTINGS = {
 AUTH_USER_MODEL = 'users.CustomUser'
 
 APPEND_SLASH = False
+
+TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
