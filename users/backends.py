@@ -24,6 +24,9 @@ class CustomAuthentication(BaseAuthentication):
         if not auth_header:
             return None
 
+        if auth_header.split()[0] == 'tma':
+            return None
+
         if not auth_header.isdigit():
             msg = 'Wrong format telegram_id'
             raise exceptions.AuthenticationFailed(msg)
