@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from tg_bot.models import InitData
+
+
+@admin.register(InitData)
+class InitDataAdmin(admin.ModelAdmin):
+    pass
