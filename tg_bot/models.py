@@ -1,7 +1,7 @@
 from django.db import models
+from rest_framework.utils import timezone
 
 
 class InitData(models.Model):
     text = models.TextField(null=True, blank=True)
-    datetime = models.DateField(auto_now_add=True)
-
+    datetime = models.DateField(default=timezone.now,)
