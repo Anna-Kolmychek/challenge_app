@@ -27,7 +27,6 @@ class CustomAuthentication(BaseAuthentication):
             return None
 
         if auth_header.split()[0] == 'tma':
-            InitData.objects.create(text=auth_header.split()[1])
             return None
 
         if not auth_header.isdigit():
