@@ -5,6 +5,8 @@ from rest_framework import authentication, exceptions
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
+
+from tg_bot.models import InitData
 # from telegram_webapps_authentication import Authenticator
 
 from users.models import CustomUser
@@ -25,6 +27,7 @@ class CustomAuthentication(BaseAuthentication):
             return None
 
         if auth_header.split()[0] == 'tma':
+            InitData.objects.create(text=auth_header.split()[1])
             return None
 
         if not auth_header.isdigit():
