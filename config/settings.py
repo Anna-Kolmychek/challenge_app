@@ -134,6 +134,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'users.backends.CustomAuthentication',
+        'tg_bot.backends.CustomAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
