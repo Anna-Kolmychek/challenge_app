@@ -1,5 +1,5 @@
 import calendar
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 from django.db import models
 from django.db.models import Sum, Case, When, Value
@@ -56,30 +56,32 @@ def get_started_date_for_current_progress(period, started_at):
     return started_date
 
 
-def get_period_finished_at(date):
+def get_period_finished_at(start_date, finished_date):
     """Get date when current period will be finished
     for challenge with period=month"""
     year = timezone.now().year
     month = timezone.now().month
-    if date.day < timezone.now().day:
+    if start_date.day < timezone.now().day:
         if month == 12:
             month = 1
             year += 1
         else:
             month += 1
     try:
-        finished_date = datetime(
+        period_finished_date = date(
             year,
             month,
-            date.day-1
+            start_date.day-1
         )
     except ValueError:
-        finished_date = datetime(
+        period_finished_date = date(
             year,
             month,
             calendar.monthrange(year, month)[1]-1
         )
-    return finished_date.date()
+    if finished_date:
+        period_finished_date = min(period_finished_date, finished_date)
+    return period_finished_date
 
 
 def get_current_progress(challenge):
