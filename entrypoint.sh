@@ -6,10 +6,8 @@ python manage.py migrate
 
 echo "Importing test users..."
 python manage.py create_users
-echo "Importing test challenges..."
+echo "Importing test challenges and progress..."
 python manage.py create_challenges
-echo "Importing test progress..."
-python manage.py create_progress
 
 
 echo "Collect static files..."
