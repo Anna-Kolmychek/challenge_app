@@ -1,6 +1,13 @@
 from django.contrib import admin
 
 from challenges.models import Challenge
+from progress.models import Progress
+
+
+class ProgressInline(admin.TabularInline):
+    model = Progress
+    fields = ('progress', 'date')
+    extra = 0
 
 
 @admin.register(Challenge)
@@ -23,5 +30,7 @@ class ChallengeAdmin(admin.ModelAdmin):
         ('started_at', 'finished_at',),
         'is_finished',
     )
+    inlines = (ProgressInline, )
     readonly_fields = ('uuid', )
     list_filter = ('period', 'is_finished', )
+    search_fields = ('user__telegram_id', )

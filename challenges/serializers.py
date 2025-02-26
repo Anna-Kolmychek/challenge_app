@@ -50,7 +50,9 @@ class GetChallengeSerializer(BaseChallengeSerializer):
     def get_period_finished_at(self, obj) -> int:
         period_finished_at = None
         if obj.period == Period.MONTH:
-            period_finished_at = services.get_period_finished_at(obj.started_at)
+            period_finished_at = services.get_period_finished_at(
+                obj.started_at, obj.finished_at
+            )
         return period_finished_at
 
 
