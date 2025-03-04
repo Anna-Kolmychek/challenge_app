@@ -22,8 +22,8 @@ def finish_completed_challenges(user):
     return challenges.update(is_finished=True)
 
 
-def get_started_date_for_current_progress(period, started_at):
-    """Get the start date to calculate the current progress"""
+def get_period_started_at(period, started_at):
+    """Get date when current period started"""
 
     started_date = None
 
@@ -56,48 +56,58 @@ def get_started_date_for_current_progress(period, started_at):
     return started_date
 
 
-def get_period_finished_at(start_date, finished_date):
-    """Get date when current period will be finished
-    for challenge with period=month"""
-    year = timezone.now().year
-    month = timezone.now().month
-    if start_date.day < timezone.now().day:
-        if month == 12:
-            month = 1
-            year += 1
-        else:
-            month += 1
-    try:
-        period_finished_date = date(
-            year,
-            month,
-            start_date.day-1
-        )
-    except ValueError:
-        period_finished_date = date(
-            year,
-            month,
-            calendar.monthrange(year, month)[1]-1
-        )
-    if finished_date:
-        period_finished_date = min(period_finished_date, finished_date)
-    return period_finished_date
+def get_period_finished_at(started_at, finished_at, period):
+    """Get date when current period will be finished"""
+    period_finished_at = None
+
+    if period == Period.DAY:
+        period_finished_at = timezone.now().date()
+
+    if period == Period.WEEK:
+        full_weeks = (timezone.now().date() - started_at).days // 7 + 1
+        period_finished_at = started_at + timedelta(days=full_weeks * 7 - 1)
+
+    if period == Period.MONTH:
+        year = timezone.now().year
+        month = timezone.now().month
+        if started_at.day < timezone.now().day:
+            if month == 12:
+                month = 1
+                year += 1
+            else:
+                month += 1
+        try:
+            period_finished_at = date(
+                year,
+                month,
+                started_at.day-1
+            )
+        except ValueError:
+            period_finished_at = date(
+                year,
+                month,
+                calendar.monthrange(year, month)[1]-1
+            )
+
+    if finished_at and period_finished_at:
+        period_finished_at = min(period_finished_at, finished_at)
+    return period_finished_at
 
 
 def get_current_progress(challenge):
     """Get current progress"""
 
-    started_date = get_started_date_for_current_progress(
+    period_started_at = get_period_started_at(
         period=challenge.period,
         started_at=challenge.started_at
     )
-    if not started_date:
+    if not period_started_at:
         raise exceptions.ValidationError(
             {
                 'started_at': f'The challenge{challenge.id} has problems with the start date.'}
         )
     current_progress = Progress.objects.filter(
-        challenge=challenge, date__gte=started_date
+        challenge=challenge, date__gte=period_started_at
     ).aggregate(sum=Sum('progress'))
     return current_progress.get('sum') if current_progress.get('sum') else 0
 
