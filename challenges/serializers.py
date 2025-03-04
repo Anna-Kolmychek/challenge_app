@@ -47,13 +47,10 @@ class GetChallengeSerializer(BaseChallengeSerializer):
     def get_progress(self, obj) -> int:
         return services.get_current_progress(obj)
 
-    def get_period_finished_at(self, obj) -> int:
-        period_finished_at = None
-        if obj.period == Period.MONTH:
-            period_finished_at = services.get_period_finished_at(
-                obj.started_at, obj.finished_at
-            )
-        return period_finished_at
+    def get_period_finished_at(self, obj):
+        return services.get_period_finished_at(
+            obj.started_at, obj.finished_at, obj.period
+        )
 
 
 class UpdateChallengeSerializer(BaseChallengeSerializer):
