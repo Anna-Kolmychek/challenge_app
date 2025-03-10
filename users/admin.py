@@ -9,6 +9,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     fields = (
         'telegram_id',
         'username',
+        'date_joined',
         'is_active',
         'is_staff',
         'is_superuser',

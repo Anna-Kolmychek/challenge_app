@@ -22,6 +22,7 @@ class Progress(models.Model):
     )
 
     class Meta:
+        ordering = ('date', )
         verbose_name = _('progress')
         verbose_name_plural = _('progresses')
 

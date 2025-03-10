@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'challenges',
     'progress',
     'tg_bot',
+    'stats',
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from config import constants
@@ -18,6 +19,10 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True,
         verbose_name=_('username'),
+    )
+    date_joined = models.DateTimeField(
+        default=timezone.now,
+        verbose_name=_("date joined"),
     )
 
     USERNAME_FIELD = 'telegram_id'
