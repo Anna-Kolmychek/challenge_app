@@ -28,5 +28,6 @@ urlpatterns = [
 
     path('api/users/', include('users.urls')),
     path('api/challenges/', include('challenges.urls')),
+    path('api/statistics/', include('stats.urls')),
     path('api/', include('tg_bot.urls')),
 ]
