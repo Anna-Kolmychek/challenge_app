@@ -1,10 +1,10 @@
 from django.db.models import Sum
 from django.utils import timezone
-from rest_framework import serializers, exceptions
+from rest_framework import serializers
 
 from challenges import services
-from challenges.models import Challenge, Period
-from progress.models import Progress
+from challenges.models import Challenge, Period, Progress
+from challenges.services import get_challenge_end_date
 
 
 class BaseChallengeSerializer(serializers.ModelSerializer):
@@ -97,7 +97,7 @@ class UpdateChallengeSerializer(BaseChallengeSerializer):
 
 
 class GetFinishedChallengeSerializer(BaseChallengeSerializer):
-    """Serializer for get info on finished challenge."""
+    """Serializer for get info on finished challenge and challenge in stats."""
 
     total_progress = serializers.SerializerMethodField(read_only=True)
     goal_progress = serializers.SerializerMethodField(read_only=True)
@@ -111,8 +111,11 @@ class GetFinishedChallengeSerializer(BaseChallengeSerializer):
         )
 
     def get_total_progress(self, obj):
+        end_date = get_challenge_end_date(obj)
         total_progress = Progress.objects.filter(
             challenge=obj,
+            date__date__gte=obj.started_at,
+            date__date__lte=end_date
         ).aggregate(sum=Sum('progress'))
         return total_progress.get('sum') if total_progress.get('sum') else 0
 
@@ -131,8 +134,7 @@ class GetFinishedChallengeSerializer(BaseChallengeSerializer):
         return goal_progress
 
     def get_duration(self, obj):
-        try:
-            duration = (obj.finished_at - obj.started_at).days + 1
-        except Exception:
-            raise exceptions.ValidationError({'date': f'incorrect dates for the challenge {obj.id}'})
+        end_date = get_challenge_end_date(obj)
+        duration = (end_date - obj.started_at).days + 1
         return duration
+

@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from config import constants
@@ -67,3 +68,30 @@ class Challenge(models.Model):
 
     def __str__(self):
         return self.description
+
+
+class Progress(models.Model):
+    """Model for Progress"""
+
+    progress = models.PositiveSmallIntegerField(
+        default=1,
+        verbose_name=_('progresses'),
+    )
+    date = models.DateTimeField(
+        default=timezone.now,
+        verbose_name=_('date'),
+    )
+    challenge = models.ForeignKey(
+        Challenge,
+        on_delete=models.CASCADE,
+        related_name='progresses',
+        verbose_name=_('challenge'),
+    )
+
+    class Meta:
+        ordering = ('date', )
+        verbose_name = _('progress')
+        verbose_name_plural = _('progresses')
+
+    def __str__(self):
+        return f'{self.progress} - {self.date} - {self.challenge.description}'

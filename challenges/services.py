@@ -1,13 +1,12 @@
 import calendar
-from datetime import timedelta, datetime, date
+from datetime import timedelta, date
 
 from django.db import models
 from django.db.models import Sum, Case, When, Value
 from django.utils import timezone
 from rest_framework import exceptions
 
-from challenges.models import Challenge, Period
-from progress.models import Progress
+from challenges.models import Challenge, Period, Progress
 
 
 def finish_completed_challenges(user):
@@ -41,19 +40,26 @@ def get_period_started_at(period, started_at):
                 year -= 1
             else:
                 month -= 1
-        try:
-            started_date = datetime(
-                year,
-                month,
-                started_at.day
-            )
-        except ValueError:
-            started_date = datetime(
-                year,
-                month,
-                calendar.monthrange(year, month)[1]
-            )
+        started_date = get_period_start_date_month(started_at, year, month)
     return started_date
+
+
+def get_period_start_date_month(start_date, period_year, period_month):
+    """Get date when period started for monthly challenges"""
+    start_day = start_date.day
+    try:
+        period_start_at = date(
+            period_year,
+            period_month,
+            start_day
+        )
+    except ValueError:
+        period_start_at = date(
+            period_year,
+            period_month,
+            calendar.monthrange(period_year, period_month)[1]
+        )
+    return period_start_at
 
 
 def get_period_finished_at(started_at, finished_at, period):
@@ -70,28 +76,31 @@ def get_period_finished_at(started_at, finished_at, period):
     if period == Period.MONTH:
         year = timezone.now().year
         month = timezone.now().month
-        if started_at.day < timezone.now().day:
-            if month == 12:
-                month = 1
-                year += 1
+        if started_at.day > timezone.now().day:
+            if month == 1:
+                month = 12
+                year -= 1
             else:
-                month += 1
-        try:
-            period_finished_at = date(
-                year,
-                month,
-                started_at.day-1
-            )
-        except ValueError:
-            period_finished_at = date(
-                year,
-                month,
-                calendar.monthrange(year, month)[1]-1
-            )
+                month -= 1
+        period_finished_at = get_period_end_date_month(started_at, year, month)
 
     if finished_at and period_finished_at:
         period_finished_at = min(period_finished_at, finished_at)
     return period_finished_at
+
+
+def get_period_end_date_month(start_date, period_year, period_month):
+    """Get date when period will be finished for monthly challenges."""
+    period_month += 1
+    if period_month == 13:
+        period_month = 1
+        period_year += 1
+
+    period_end_at = get_period_start_date_month(
+        start_date, period_year, period_month
+    ) - timedelta(days=1)
+
+    return period_end_at
 
 
 def get_current_progress(challenge):
@@ -104,7 +113,8 @@ def get_current_progress(challenge):
     if not period_started_at:
         raise exceptions.ValidationError(
             {
-                'started_at': f'The challenge{challenge.id} has problems with the start date.'}
+                'started_at': f'The challenge{challenge.id} '
+                              f'has problems with the start date.'}
         )
     current_progress = Progress.objects.filter(
         challenge=challenge, date__gte=period_started_at
@@ -162,3 +172,12 @@ def custom_ordering(challenges):
         'description'
     )
     return sorted_challenges
+
+
+def get_challenge_end_date(challenge):
+    """Get finish date for challenge or current date"""
+    if challenge.finished_at and challenge.finished_at < timezone.now().date():
+        end_date = challenge.finished_at
+    else:
+        end_date = timezone.now().date()
+    return end_date
