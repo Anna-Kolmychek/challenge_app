@@ -47,11 +47,11 @@ challenges_data = [
             },
             {
                 'progress': 1,
-                'date': timezone.now() - timedelta(days=9),
+                'date': timezone.now() - timedelta(days=10),
             },
             {
                 'progress': 1,
-                'date': timezone.now() - timedelta(days=5),
+                'date': timezone.now() - timedelta(days=6),
             },
             {
                 'progress': 1,
@@ -107,7 +107,7 @@ challenges_data = [
             },
             {
                 'progress': 1,
-                'date': timezone.now() - timedelta(days=12),
+                'date': timezone.now() - timedelta(days=13),
             },
             {
                 'progress': 1,

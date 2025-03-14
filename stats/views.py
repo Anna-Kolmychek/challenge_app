@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -11,7 +12,13 @@ from stats.serializers import CommonStatisticsSerializer
 class CommonStatisticsAPIView(APIView):
     permission_classes = (IsAuthenticated, )
 
+    @extend_schema(
+        responses=CommonStatisticsSerializer,
+        summary='Common statistics',
+    )
     def get(self, request):
+        """Get a common statistics for the current user.\n
+        Available only to authorized users."""
         services.finish_completed_challenges(self.request.user)
         challenges = Challenge.objects.filter(
             user=self.request.user,

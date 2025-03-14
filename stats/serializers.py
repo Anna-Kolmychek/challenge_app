@@ -1,19 +1,64 @@
 import math
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from django.db.models import Sum, ExpressionWrapper, F, IntegerField, DateField
+from django.db.models import Sum, ExpressionWrapper, F, DateField
 from django.db.models.functions import TruncWeek
 from rest_framework import serializers
 from django.utils import timezone
 
-from challenges.models import Challenge, Period
-from challenges.serializers import GetChallengeSerializer
-from challenges.services import finish_completed_challenges
+from challenges.models import Period
+from challenges.serializers import GetFinishedChallengeSerializer
+from challenges import services
+from challenges.services import get_challenge_end_date
+
+
+class ChallengesSerializer(serializers.Serializer):
+    """Serializer for `challenge` field description
+    in CommonStatisticsSerializer, for display in drf-spectacular"""
+    all = serializers.IntegerField()
+    completed = serializers.IntegerField()
+
+
+class PeriodStatsSerializer(serializers.Serializer):
+    """Serializer for field description
+    in PeriodsSerializer, for display in drf-spectacular"""
+    day = serializers.IntegerField()
+    week = serializers.IntegerField()
+    month = serializers.IntegerField()
+
+
+class PeriodsSerializer(serializers.Serializer):
+    """Serializer for `periods` field description
+    in CommonStatisticsSerializer, for display in drf-spectacular"""
+    all_periods = PeriodStatsSerializer()
+    successful_periods = PeriodStatsSerializer()
+
+
+class EffectiveChallengeSerializer(serializers.Serializer):
+    """Serializer for `effective_challenge` field description
+    in CommonStatisticsSerializer, for display in drf-spectacular"""
+    percent = serializers.FloatField()
+    periods = serializers.IntegerField()
+    successful_periods = serializers.IntegerField()
+    challenge = GetFinishedChallengeSerializer()
+
+
+class LongestChallengeSerializer(serializers.Serializer):
+    """Serializer for `longest_challenge` field description
+    in CommonStatisticsSerializer, for display in drf-spectacular"""
+    duration = serializers.IntegerField()
+    challenge = GetFinishedChallengeSerializer()
 
 
 class CommonStatisticsSerializer(serializers.Serializer):
+    """Serializer for common stats."""
+
     days_since_registration = serializers.IntegerField(min_value=1)
+    challenges = ChallengesSerializer()
+    periods = PeriodsSerializer()
+    effective_challenge = EffectiveChallengeSerializer()
+    longest_challenge = LongestChallengeSerializer()
 
     def to_representation(self, challenges):
         user = self.context.get('request').user
@@ -27,30 +72,6 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
         periods_data, effective_challenge = self._get_count_periods(challenges)
 
-        # return {
-        #     'days_since_registration': days_since_registration,
-        #
-        #     'count_completed_challenges': count_completed_challenges,
-        #     'count_all_challenges': count_all_challenges,
-        #
-        #     'count_all_periods_daily': periods_data['all_periods'][Period.DAY],
-        #     'count_successfully_periods_daily': periods_data['successful_periods'][Period.DAY],
-        #
-        #     'count_all_periods_weekly': periods_data['all_periods'][Period.WEEK],
-        #     'count_successfully_periods_weekly': periods_data['successful_periods'][Period.WEEK],
-        #
-        #     'count_all_periods_monthly': periods_data['all_periods'][Period.MONTH],
-        #     'count_successfully_periods_monthly': periods_data['successful_periods'][Period.MONTH],
-        #
-        #     'effective_challenge_percent': effective_challenge['percent'],
-        #     'effective_challenge': GetChallengeSerializer(
-        #         effective_challenge['challenge']).data,
-        #
-        #     'longest_challenge_duration': longest_challenge['duration'],
-        #     'longest_challenge': GetChallengeSerializer(
-        #         longest_challenge['challenge']).data,
-        #
-        # }
         return {
             'days_since_registration': days_since_registration,
 
@@ -63,13 +84,15 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
             'effective_challenge': {
                 'percent': effective_challenge['percent'],
-                'challenge': GetChallengeSerializer(
+                'periods': effective_challenge['periods'],
+                'successful_periods': effective_challenge['successful_periods'],
+                'challenge': GetFinishedChallengeSerializer(
                     effective_challenge['challenge']).data,
             },
 
             'longest_challenge': {
                 'duration': longest_challenge['duration'],
-                'challenge': GetChallengeSerializer(
+                'challenge': GetFinishedChallengeSerializer(
                     longest_challenge['challenge']).data,
 
             },
@@ -77,25 +100,33 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
     @staticmethod
     def _get_days_since_registration(user):
+        """Get the number of days since the user's registration."""
+
         return (timezone.now().date() - user.date_joined.date()).days + 1
 
     @staticmethod
     def _get_count_all_challenges(challenges):
+        """Get the total number of challenges."""
+
         return len(challenges)
 
     @staticmethod
     def _get_count_completed_challenges(challenges):
+        """Get the number of completed challenges."""
+
         return challenges.filter(is_finished=True).count()
 
     @staticmethod
     def _get_longest_challenge(challenges):
+        """Get the longest challenge and its duration
+        (counting the days for any periodicity)."""
         longest_challenge = {
             'challenge': None,
             'duration': 0,
         }
 
         for challenge in challenges:
-            end_date = challenge.finished_at if challenge.is_finished else timezone.now().date()
+            end_date = get_challenge_end_date(challenge)
             duration = (end_date - challenge.started_at).days + 1
 
             if duration > longest_challenge['duration']:
@@ -105,12 +136,18 @@ class CommonStatisticsSerializer(serializers.Serializer):
         return longest_challenge
 
     def _get_count_periods(self, challenges):
-        all_periods = defaultdict(int)
-        successful_periods = defaultdict(int)
+        """Get period statistics
+        and the most effective challenge with its statistics."""
+
+        period_names = (Period.DAY, Period.WEEK, Period.MONTH)
+        all_periods = dict.fromkeys(period_names, 0)
+        successful_periods = dict.fromkeys(period_names, 0)
 
         effective_challenge = {
             'challenge': None,
-            'percent': 0.0
+            'percent': 0.0,
+            'periods': 0,
+            'successful_periods': 0,
         }
 
         for challenge in challenges:
@@ -124,6 +161,8 @@ class CommonStatisticsSerializer(serializers.Serializer):
                 if percent > effective_challenge['percent']:
                     effective_challenge['challenge'] = challenge
                     effective_challenge['percent'] = percent
+                    effective_challenge['periods'] = ch_all_periods
+                    effective_challenge['successful_periods'] = ch_successful_periods
 
         periods = {
             'all_periods': all_periods,
@@ -133,14 +172,15 @@ class CommonStatisticsSerializer(serializers.Serializer):
         return periods, effective_challenge
 
     def _get_count_periods_one_challenge(self, challenge):
-        # Функции по периодам
+        """Get statistics of periods for a single challenge
+         (redirection by function depending on the periodicity)."""
+
         period_handlers = {
             Period.DAY: self._get_count_periods_daily,
             Period.WEEK: self._get_count_periods_weekly,
             Period.MONTH: self._get_count_periods_monthly,
         }
 
-        # Получаем функцию из словаря
         handler = period_handlers.get(challenge.period)
 
         if not handler:
@@ -152,8 +192,10 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
     @staticmethod
     def _get_count_periods_daily(challenge):
+        """Get statistics of periods for a daily challenge."""
+
         start_date = challenge.started_at
-        end_date = challenge.finished_at if challenge.is_finished else timezone.now().date()
+        end_date = get_challenge_end_date(challenge)
         periods = (end_date - start_date).days + 1
 
         successful_periods = challenge.progresses.filter(
@@ -167,9 +209,11 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
     @staticmethod
     def _get_count_periods_weekly(challenge):
+        """Get statistics of periods for a weekly challenge."""
+
         start_date = challenge.started_at
         start_weekday = start_date.weekday()
-        end_date = challenge.finished_at if challenge.is_finished else timezone.now().date()
+        end_date = get_challenge_end_date(challenge)
         total_days = (end_date - start_date).days + 1
         periods = math.ceil(total_days / 7)
 
@@ -190,4 +234,36 @@ class CommonStatisticsSerializer(serializers.Serializer):
 
     @staticmethod
     def _get_count_periods_monthly(challenge):
-        return 0, 0
+        """Get statistics of periods for a monthly challenge."""
+
+        start_date = challenge.started_at
+        end_date = get_challenge_end_date(challenge)
+
+        periods = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+        if end_date.day > start_date.day:
+            periods += 1
+
+        successful_periods = 0
+
+        for i in range(periods):
+            period_month = (start_date.month - 1 + i) % 12 + 1
+            period_year = start_date.year + (start_date.month - 1 + i) // 12
+            period_start_date = services.get_period_start_date_month(
+                challenge.started_at, period_year, period_month
+            )
+            period_end_date = services.get_period_end_date_month(
+                challenge.started_at, period_year, period_month
+            )
+            progress = challenge.progresses.filter(
+                date__date__gte=period_start_date,
+                date__date__lte=period_end_date
+            ).aggregate(
+                progress_sum=Sum('progress')
+            )
+
+            progress = progress.get('progress_sum') if progress.get('progress_sum') else 0
+
+            if progress >= challenge.goal:
+                successful_periods += 1
+
+        return periods, successful_periods

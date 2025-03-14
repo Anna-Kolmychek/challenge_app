@@ -1,8 +1,7 @@
 from django.core.management import BaseCommand
 
 from challenges.management.data.challenges_data import challenges_data
-from challenges.models import Challenge
-from progress.models import Progress
+from challenges.models import Challenge, Progress
 from users.management.data.users_data import users_data
 from users.models import CustomUser
 

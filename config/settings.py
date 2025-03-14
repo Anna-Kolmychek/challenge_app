@@ -30,7 +30,6 @@ INSTALLED_APPS = [
 
     'users',
     'challenges',
-    'progress',
     'tg_bot',
     'stats',
 ]
