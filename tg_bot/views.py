@@ -5,11 +5,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from tg_bot.models import InitData
+from tg_bot.tasks import send_tg_messages
 
 
 class TestTGAuth(APIView):
     def get(self, request):
         header_auth = request.headers.get('authorization')
-        # asyncio.run(send_tg_messages())
-        InitData.objects.create(text=header_auth)
+        send_tg_messages()
         return Response(header_auth, status=status.HTTP_200_OK)

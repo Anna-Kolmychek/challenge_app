@@ -6,4 +6,6 @@ psycopg2-binary==2.9.10
 django-cors-headers==4.6.0
 pillow==11.0.0
 gunicorn==23.0.0
-python-telegram-bot==21.10
+requests==2.32.3
+celery==5.4.0
+redis==5.2.1
