@@ -15,10 +15,7 @@ from users.models import CustomUser
 def send_tg_messages():
     """Organizes the sending of reminders in TG"""
 
-    print(timezone.now())
-
-    users = CustomUser.objects.filter(is_active=True, is_superuser=False, telegram_id=1403132885).all()
-    # users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
+    users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
     for user in users:
         message = form_message(user)
         if message:
@@ -28,7 +25,6 @@ def send_tg_messages():
 def send_message_to_user(user_id, message):
     """Send message to user"""
 
-    user_id = 1403132885
     url = f'https://api.telegram.org/bot{settings.TG_BOT_TOKEN}/sendMessage'
 
     keyboard = {
@@ -58,7 +54,6 @@ def send_message_to_user(user_id, message):
 
 def form_message(user):
     challenges = Challenge.objects.filter(user=user, is_finished=False).all()
-    # message = f'{user.telegram_id}\n'
     message = ''
 
     possible_periods = [Period.DAY, Period.WEEK, Period.MONTH]
