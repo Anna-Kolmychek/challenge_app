@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'corsheaders',
+    'django_celery_beat',
 
     'users',
     'challenges',
@@ -162,11 +163,4 @@ CELERY_BROKER_URL = REDIS_LOCATION
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BEAT_SCHEDULE = {
-    'reminder-every-day-at-18-00': {
-        'task': 'tg_bot.tasks.send_tg_messages',
-        'schedule': crontab(hour='21', minute='55'),
-        # 'schedule': crontab(hour='18', minute='0'),
-    },
-}
-
+CELERY_BEAT_SCHEDULER = os.getenv('CELERY_BEAT_SCHEDULER', default='django_celery_beat.schedulers:DatabaseScheduler')
