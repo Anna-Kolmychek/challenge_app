@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from celery.schedules import crontab, timedelta
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
@@ -155,3 +156,17 @@ AUTH_USER_MODEL = 'users.CustomUser'
 APPEND_SLASH = False
 
 TG_BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
+
+REDIS_LOCATION = os.getenv('REDIS_LOCATION', default='redis://localhost:6379/0')
+CELERY_BROKER_URL = REDIS_LOCATION
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BEAT_SCHEDULE = {
+    'reminder-every-day-at-18-00': {
+        'task': 'tg_bot.tasks.send_tg_messages',
+        'schedule': crontab(hour='21', minute='55'),
+        # 'schedule': crontab(hour='18', minute='0'),
+    },
+}
+

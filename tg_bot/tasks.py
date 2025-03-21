@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 
 import requests
+from celery import shared_task
 from django.utils import timezone
 
 from challenges import services
@@ -10,10 +11,14 @@ from config import settings
 from users.models import CustomUser
 
 
+@shared_task
 def send_tg_messages():
     """Organizes the sending of reminders in TG"""
 
-    users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
+    print(timezone.now())
+
+    users = CustomUser.objects.filter(is_active=True, is_superuser=False, telegram_id=1403132885).all()
+    # users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
     for user in users:
         message = form_message(user)
         if message:
@@ -97,13 +102,15 @@ def form_message(user):
         message += '\n'
 
     if ch_dict[Period.WEEK]['not_ready'] or ch_dict[Period.WEEK]['ready']:
-        message += 'У этих <b><u>еженедельных</u></b> челленждей текущий период заканчивается через <b>2 дня</b>:\n'
+        message += ('У этих <b><u>еженедельных</u></b> челленждей текущий '
+                    'период заканчивается через <b>2 дня</b>:\n')
         message += ch_dict[Period.WEEK]['not_ready']
         message += ch_dict[Period.WEEK]['ready']
         message += '\n'
 
     if ch_dict[Period.MONTH]['not_ready'] or ch_dict[Period.MONTH]['ready']:
-        message += 'У этих <b><u>ежемесячных</u></b> челленждей текущий период заканчивается через <b>2 недели</b>:\n'
+        message += ('У этих <b><u>ежемесячных</u></b> челленждей текущий '
+                    'период заканчивается через <b>2 недели</b>:\n')
         message += ch_dict[Period.MONTH]['not_ready']
         message += ch_dict[Period.MONTH]['ready']
 
