@@ -9,3 +9,4 @@ gunicorn==23.0.0
 requests==2.32.3
 celery==5.4.0
 redis==5.2.1
+django-celery-beat==2.7.0
