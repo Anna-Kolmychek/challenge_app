@@ -13,11 +13,6 @@ python manage.py create_challenges
 echo "Collect static files..."
 python manage.py collectstatic --noinput
 
-echo "Starting Celery worker..."
-celery -A config worker --loglevel=info --logfile=celery_worker.log &
-
-echo "Starting Celery Beat..."
-celery -A config beat --loglevel=info --logfile=celery_beat.log &
 
 echo "Starting gunicorn..."
 gunicorn --bind 0.0.0.0:9000 --workers 3 config.wsgi:application 0
