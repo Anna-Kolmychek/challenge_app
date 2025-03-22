@@ -42,7 +42,7 @@ services:
 
   celery:
     image: akolmychek/challenge_app:latest
-    command: celery -A config worker --loglevel=info --logfile=cat celery_worker.log
+    command: celery -A config worker --loglevel=info --logfile=celery_worker.log
     env_file:
       - .env
     depends_on:
