@@ -51,7 +51,7 @@ services:
 
   celery-beat_challenge_app:
     image: akolmychek/challenge_app:latest
-    command: celery -A config beat --loglevel=info --logfile=celery_beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A config beat --loglevel=info --logfile=celery_beat.log
     env_file:
       - .env
     depends_on:
