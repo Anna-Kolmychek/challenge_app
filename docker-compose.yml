@@ -38,15 +38,17 @@ services:
     command: --port 6380
     ports:
       - "6380:6379"
+    restart: always
 
   celery:
     image: akolmychek/challenge_app:latest
-    command: celery -A config worker --loglevel=info --logfile=celery_worker.log
+    command: celery -A config worker --loglevel=info --logfile=cat celery_worker.log
     env_file:
       - .env
     depends_on:
       - backend
       - redis
+    restart: always
 
   celery-beat:
     image: akolmychek/challenge_app:latest
@@ -57,6 +59,7 @@ services:
       - backend
       - celery
       - redis
+    restart: always
 
 volumes:
   postgres_data:

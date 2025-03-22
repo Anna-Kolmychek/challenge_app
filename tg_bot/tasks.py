@@ -15,8 +15,7 @@ from users.models import CustomUser
 def send_tg_messages():
     """Organizes the sending of reminders in TG"""
 
-    users = CustomUser.objects.filter(is_active=True, is_superuser=False, telegram_id=1403132885).all()
-    # users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
+    users = CustomUser.objects.filter(is_active=True, is_superuser=False).all()
     for user in users:
         message = form_message(user)
         if message:
