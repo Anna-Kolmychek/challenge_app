@@ -1,3 +1,5 @@
+import os
+
 from django.core.management import BaseCommand
 
 from users.management.data.users_data import users_data
@@ -10,6 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Create admin
+        password = os.getenv('ADMIN_PASS', default='0')
         if CustomUser.objects.filter(telegram_id=0).exists():
             self.stdout.write(self.style.WARNING(
                 f'Admin already exists.'
@@ -17,7 +20,8 @@ class Command(BaseCommand):
         else:
             CustomUser.objects.create_superuser(
                 telegram_id=0,
-                password='0',
+                username='ADMIN',
+                password=password,
             )
             self.stdout.write(self.style.SUCCESS('Admin successfully created.'))
 
