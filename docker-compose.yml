@@ -33,12 +33,32 @@ services:
     depends_on:
       - backend
 
-  challenge_app_redis:
+  redis_challenge_app:
     image: redis:latest
     command: --port 6380
     ports:
       - "6380:6379"
 
+  celery_challenge_app:
+    image: akolmychek/challenge_app:latest
+    command: celery -A config worker --loglevel=info --logfile=celery_worker.log
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis_challenge_app
+    restart: always
+
+  celery-beat_challenge_app:
+    image: akolmychek/challenge_app:latest
+    command: celery -A config beat --loglevel=info --logfile=celery_beat.log
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - celery_challenge_app
+      - redis_challenge_app
+    restart: always
 
 volumes:
   postgres_data:
