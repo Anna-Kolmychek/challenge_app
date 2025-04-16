@@ -42,7 +42,7 @@ services:
 
   celery:
     image: akolmychek/challenge_app:latest
-    command: celery -A config worker --loglevel=info --logfile=/var/log/celery_worker.log --maxtasksperchild=100
+    command: celery -A config worker --loglevel=info --logfile=/var/log/celery_worker.log --max-tasks-per-child=100
     volumes:
       - ./logs:/var/log/celery
     env_file:
@@ -53,7 +53,7 @@ services:
 
   celery-beat:
     image: akolmychek/challenge_app:latest
-    command: celery -A config beat --loglevel=info --logfile=/var/log/celery_beat.log --maxtasksperchild=100
+    command: celery -A config beat --loglevel=info --logfile=/var/log/celery_beat.log
     volumes:
       - ./logs:/var/log/celery
     env_file:
