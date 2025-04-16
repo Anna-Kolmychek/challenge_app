@@ -42,24 +42,26 @@ services:
 
   celery:
     image: akolmychek/challenge_app:latest
-    command: celery -A config worker --loglevel=info --logfile=celery_worker.log
+    command: celery -A config worker --loglevel=info --logfile=/var/log/celery_worker.log --maxtasksperchild=100
+    volumes:
+      - ./logs:/var/log/celery
     env_file:
       - .env
     depends_on:
       - backend
       - redis
-    restart: always
 
   celery-beat:
     image: akolmychek/challenge_app:latest
-    command: celery -A config beat --loglevel=info --logfile=celery_beat.log
+    command: celery -A config beat --loglevel=info --logfile=/var/log/celery_beat.log --maxtasksperchild=100
+    volumes:
+      - ./logs:/var/log/celery
     env_file:
       - .env
     depends_on:
       - backend
       - celery
       - redis
-    restart: always
 
 volumes:
   postgres_data:
